@@ -6,4 +6,8 @@ class ScalaFile2 {
   def function: Unit = {
     println("function called.")
   }
+
+  class NestedClass {}
 }
+
+case class Foo(id: Int)

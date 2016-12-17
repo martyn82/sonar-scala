@@ -67,12 +67,12 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
           .saveMeasure(file, CM.FILES, 1)
       verify(sensorContext, times(1))
           .saveMeasure(file, CM.COMMENT_LINES, 0)
-
+      verify(sensorContext, times(1))
+          .saveMeasure(file, CM.CLASSES, 1)
     }
   }
 
   it should "correctly measure ScalaFile2" in {
-
     val c = context
     c.fs.add(
       new DefaultInputFile("p", "ScalaFile2.scala").setLanguage("scala"));
@@ -87,7 +87,8 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
           .saveMeasure(file, CM.FILES, 1)
       verify(sensorContext, times(1))
           .saveMeasure(file, CM.COMMENT_LINES, 1)
-
+      verify(sensorContext, times(1))
+          .saveMeasure(file, CM.CLASSES, 3)
     }
   }
 }

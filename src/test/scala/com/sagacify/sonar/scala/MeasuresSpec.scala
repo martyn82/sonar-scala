@@ -97,10 +97,15 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
     assert(count == 1)
   }
 
-  it should "count the correct number of comments" in {
+  it should "count the correct number of lines" in {
     val tokens = Scala.tokenize(exampleSourceFile, "2.11.8")
     val count = Measures.count_ncloc(tokens)
     assert(count == 18)
   }
 
+  it should "count the number of classes" in {
+    val tokens = Scala.tokenize(exampleSourceFile, "2.11.8")
+    val count = Measures.count_classes(tokens)
+    assert(count == 1)
+  }
 }

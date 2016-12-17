@@ -1,9 +1,7 @@
 package com.sagacify.sonar.scala
 
 import scala.annotation.tailrec
-
-import scalariform.lexer.ScalaLexer
-import scalariform.lexer.Token
+import scalariform.lexer.{ScalaLexer, Token, TokenType, Tokens}
 import scalariform.lexer.Tokens.LINE_COMMENT
 import scalariform.lexer.Tokens.MULTILINE_COMMENT
 import scalariform.lexer.Tokens.XML_COMMENT
@@ -33,6 +31,15 @@ object Measures {
           }
         }
       case _ :: tail => count_comment_lines(tail, i)
+    }
+  }
+
+  @tailrec
+  final def count_classes(tokens: List[Token], i: Int = 0): Int = {
+    tokens match {
+      case Nil => i
+      case token :: tail if token.tokenType == Tokens.CLASS => count_classes(tail, i + 1)
+      case _ :: tail => count_classes(tail, i)
     }
   }
 

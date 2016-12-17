@@ -35,8 +35,10 @@ class ScalaSensor(scala: Scala, fs: FileSystem) extends Sensor {
       context.saveMeasure(inputFile,
                           CM.NCLOC,
                           Measures.count_ncloc(tokens))
+      context.saveMeasure(inputFile,
+                          CM.CLASSES,
+                          Measures.count_classes(tokens))
 
-      // context.saveMeasure(input, CM.CLASSES, classes)
       // context.saveMeasure(input, CM.FUNCTIONS, methods)
       // context.saveMeasure(input, CM.ACCESSORS, accessors)
       // context.saveMeasure(input, CM.COMPLEXITY_IN_FUNCTIONS, complexityInMethods)
