@@ -44,6 +44,15 @@ object Measures {
   }
 
   @tailrec
+  final def count_functions(tokens: List[Token], i: Int = 0): Int = {
+    tokens match {
+      case Nil => i
+      case token :: tail if token.tokenType == Tokens.DEF => count_functions(tail, i + 1)
+      case _ :: tail => count_functions(tail, i)
+    }
+  }
+
+  @tailrec
   final def count_ncloc(tokens: List[Token], i: Int = 0): Int = {
 
     @tailrec

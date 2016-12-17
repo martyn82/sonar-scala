@@ -108,4 +108,10 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
     val count = Measures.count_classes(tokens)
     assert(count == 1)
   }
+
+  it should "count the number of functions" in {
+    val tokens = Scala.tokenize("def foo(x: Int) = {}", "2.11.8")
+    val count = Measures.count_functions(tokens)
+    assert(count == 1)
+  }
 }

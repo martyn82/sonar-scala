@@ -38,6 +38,9 @@ class ScalaSensor(scala: Scala, fs: FileSystem) extends Sensor {
       context.saveMeasure(inputFile,
                           CM.CLASSES,
                           Measures.count_classes(tokens))
+      context.saveMeasure(inputFile,
+                          CM.FUNCTIONS,
+                          Measures.count_functions(tokens))
 
       // context.saveMeasure(input, CM.FUNCTIONS, methods)
       // context.saveMeasure(input, CM.ACCESSORS, accessors)
