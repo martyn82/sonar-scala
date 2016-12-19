@@ -26,7 +26,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
 class ScalaSensorSpec extends FlatSpec with Matchers {
 
-  val NUMBER_OF_FILES = 3;
+  val NUMBER_OF_FILES = 3
 
   val scala = new Scala(new Settings())
 
@@ -70,7 +70,9 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
       verify(sensorContext, times(1))
           .saveMeasure(file, CM.CLASSES, 1)
       verify(sensorContext, times(1))
-          .saveMeasure(file, CM.FUNCTIONS, 1)
+          .saveMeasure(file, CM.FUNCTIONS, 2)
+      verify(sensorContext, times(1))
+          .saveMeasure(file, CM.FUNCTION_COMPLEXITY, 1)
     }
   }
 
@@ -92,7 +94,33 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
       verify(sensorContext, times(1))
           .saveMeasure(file, CM.CLASSES, 3)
       verify(sensorContext, times(1))
-          .saveMeasure(file, CM.FUNCTIONS, 1)
+          .saveMeasure(file, CM.FUNCTIONS, 4)
+      verify(sensorContext, times(1))
+          .saveMeasure(file, CM.FUNCTION_COMPLEXITY, 1)
+    }
+  }
+
+  it should "correctly measure ScalaFile3" in {
+    val c = context
+    c.fs.add(new DefaultInputFile("p", "ScalaFile3.scala").setLanguage("scala"))
+    val sensorContext = mock(classOf[SensorContext])
+    c.sensor.analyse(c.project, sensorContext)
+
+    val inputFiles = c.fs.inputFiles(c.fs.predicates().hasLanguage(scala.getKey))
+
+    inputFiles.foreach { file =>
+      verify(sensorContext, times(1))
+          .saveMeasure(file, CM.FILES, 1)
+      verify(sensorContext, times(1))
+          .saveMeasure(file, CM.COMMENT_LINES, 1)
+      verify(sensorContext, times(1))
+          .saveMeasure(file, CM.NCLOC, 21)
+      verify(sensorContext, times(1))
+          .saveMeasure(file, CM.CLASSES, 1)
+      verify(sensorContext, times(1))
+          .saveMeasure(file, CM.FUNCTIONS, 2)
+      verify(sensorContext, times(1))
+          .saveMeasure(file, CM.FUNCTION_COMPLEXITY, 3)
     }
   }
 }

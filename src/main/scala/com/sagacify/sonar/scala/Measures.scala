@@ -48,6 +48,9 @@ object Measures {
     tokens match {
       case Nil => i
       case token :: tail if token.tokenType == Tokens.DEF => count_functions(tail, i + 1)
+      case token :: tail if token.tokenType == Tokens.CLASS => count_functions(tail, i + 1)
+      case token :: tail if token.tokenType == Tokens.OBJECT => count_functions(tail, i + 1)
+      case token :: tail if token.tokenType == Tokens.TRAIT => count_functions(tail, i + 1)
       case _ :: tail => count_functions(tail, i)
     }
   }
@@ -79,4 +82,24 @@ object Measures {
     }
   }
 
+  @tailrec
+  final def count_complexity(tokens: List[Token], i: Int = 0): Int = {
+    tokens match {
+      case Nil => i
+
+      case token :: tail if token.tokenType == Tokens.CASE => count_complexity(tail, i + 1)
+      case token :: tail if token.tokenType == Tokens.DO => count_complexity(tail, i + 1)
+      case token :: tail if token.tokenType == Tokens.FOR => count_complexity(tail, i + 1)
+      case token :: tail if token.tokenType == Tokens.FORSOME => count_complexity(tail, i + 1)
+      case token :: tail if token.tokenType == Tokens.IF => count_complexity(tail, i + 1)
+      case token :: tail if token.tokenType == Tokens.WHILE => count_complexity(tail, i + 1)
+
+      case token :: tail if token.tokenType == Tokens.DEF => count_complexity(tail, i + 1)
+      case token :: tail if token.tokenType == Tokens.CLASS => count_complexity(tail, i + 1)
+      case token :: tail if token.tokenType == Tokens.OBJECT => count_complexity(tail, i + 1)
+      case token :: tail if token.tokenType == Tokens.TRAIT => count_complexity(tail, i + 1)
+
+      case _ :: tail => count_complexity(tail, i)
+    }
+  }
 }

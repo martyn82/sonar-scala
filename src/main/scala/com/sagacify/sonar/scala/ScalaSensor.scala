@@ -2,12 +2,13 @@ package com.sagacify.sonar.scala
 
 import scala.io.Source
 import scala.collection.JavaConversions._
-
 import org.sonar.api.batch.fs.FileSystem
 import org.sonar.api.batch.Sensor
 import org.sonar.api.batch.SensorContext
 import org.sonar.api.measures.{CoreMetrics => CM}
 import org.sonar.api.resources.Project
+
+import scalariform.lexer.{Token, Tokens}
 
 
 class ScalaSensor(scala: Scala, fs: FileSystem) extends Sensor {
@@ -38,15 +39,23 @@ class ScalaSensor(scala: Scala, fs: FileSystem) extends Sensor {
       context.saveMeasure(inputFile,
                           CM.CLASSES,
                           Measures.count_classes(tokens))
+
+      val countFunctions = Measures.count_functions(tokens)
+      val totalComplexity = Measures.count_complexity(tokens)
+
       context.saveMeasure(inputFile,
                           CM.FUNCTIONS,
-                          Measures.count_functions(tokens))
+                          countFunctions)
+      context.saveMeasure(inputFile,
+                          CM.COMPLEXITY,
+                          totalComplexity)
+      context.saveMeasure(inputFile,
+                          CM.FUNCTION_COMPLEXITY,
+                          totalComplexity / countFunctions)
 
-      // context.saveMeasure(input, CM.FUNCTIONS, methods)
       // context.saveMeasure(input, CM.ACCESSORS, accessors)
       // context.saveMeasure(input, CM.COMPLEXITY_IN_FUNCTIONS, complexityInMethods)
       // context.saveMeasure(input, CM.COMPLEXITY_IN_CLASSES, fileComplexity)
-      // context.saveMeasure(input, CM.COMPLEXITY, fileComplexity)
       // context.saveMeasure(input, CM.PUBLIC_API, publicApiChecker.getPublicApi())
       // context.saveMeasure(input, CM.PUBLIC_DOCUMENTED_API_DENSITY, publicApiChecker.getDocumentedPublicApiDensity())
       // context.saveMeasure(input, CM.PUBLIC_UNDOCUMENTED_API, publicApiChecker.getUndocumentedPublicApi())
