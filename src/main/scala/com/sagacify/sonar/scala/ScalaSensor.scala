@@ -8,40 +8,37 @@ import org.sonar.api.batch.SensorContext
 import org.sonar.api.measures.{CoreMetrics => CM}
 import org.sonar.api.resources.Project
 
-import scalariform.lexer.{Token, Tokens}
-
-
 class ScalaSensor(scala: Scala, fs: FileSystem) extends Sensor {
 
   def shouldExecuteOnProject(project: Project): Boolean = {
-    return fs.hasFiles(fs.predicates().hasLanguage(scala.getKey()));
+    fs.hasFiles(fs.predicates().hasLanguage(scala.getKey))
   }
 
   def analyse(project: Project, context: SensorContext): Unit = {
 
-    val charset = fs.encoding().toString()
+    val charset = fs.encoding().toString
     val version = "2.11.8"
 
-    val inputFiles = fs.inputFiles(fs.predicates().hasLanguage(scala.getKey()))
+    val inputFiles = fs.inputFiles(fs.predicates().hasLanguage(scala.getKey))
 
     inputFiles.foreach{ inputFile =>
-      context.saveMeasure(inputFile, CM.FILES, 1.0);
+      context.saveMeasure(inputFile, CM.FILES, 1.0)
 
       val sourceCode = Source.fromFile(inputFile.file, charset).mkString
       val tokens = Scala.tokenize(sourceCode, version)
 
       context.saveMeasure(inputFile,
                           CM.COMMENT_LINES,
-                          Measures.count_comment_lines(tokens))
+                          Measures.countCommentLines(tokens))
       context.saveMeasure(inputFile,
                           CM.NCLOC,
-                          Measures.count_ncloc(tokens))
+                          Measures.countNCLoC(tokens))
       context.saveMeasure(inputFile,
                           CM.CLASSES,
-                          Measures.count_classes(tokens))
+                          Measures.countClasses(tokens))
 
-      val countFunctions = Measures.count_functions(tokens)
-      val totalComplexity = Measures.count_complexity(tokens)
+      val countFunctions = Measures.countFunctions(tokens)
+      val totalComplexity = Measures.calculateComplexity(tokens)
 
       context.saveMeasure(inputFile,
                           CM.FUNCTIONS,

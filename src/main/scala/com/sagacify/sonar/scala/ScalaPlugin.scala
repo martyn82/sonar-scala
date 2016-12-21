@@ -2,7 +2,6 @@ package com.sagacify.sonar.scala
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
-
 import com.buransky.plugins.scoverage.measure.ScalaMetrics
 import com.buransky.plugins.scoverage.sensor.ScoverageSensor
 import com.buransky.plugins.scoverage.widget.ScoverageWidget
@@ -13,8 +12,10 @@ import org.sonar.api.config.Settings
 import org.sonar.api.Extension
 import org.sonar.api.resources.AbstractLanguage
 import org.sonar.api.SonarPlugin
+
 import scalariform.lexer.ScalaLexer
 import scalariform.lexer.Token
+import scalariform.parser.{AstNode, ScalaParser}
 
 /**
  * Defines Scala as a language for SonarQube.
@@ -26,10 +27,11 @@ class Scala(s: Settings) extends AbstractLanguage("scala", "Scala") {
 }
 
 object Scala {
-
   def tokenize(sourceCode: String, scalaVersion: String): List[Token] =
-    ScalaLexer.createRawLexer(sourceCode, false, scalaVersion).toList
+    ScalaLexer.createRawLexer(sourceCode, forgiveErrors = false, scalaVersion).toList
 
+  def parse(sourceCode: String, scalaVersion: String): Option[AstNode] =
+    ScalaParser.parse(sourceCode, scalaVersion)
 }
 
 /**

@@ -1,14 +1,8 @@
 package com.sagacify.sonar.scala
 
 import org.scalatest._
-// import scalariform.lexer.ScalaLexer
-// import scalariform.lexer.Token
-// import scalariform.lexer.Tokens.LINE_COMMENT
-// import scalariform.lexer.Tokens.MULTILINE_COMMENT
-// import scalariform.lexer.Tokens.XML_COMMENT
-// import scala.annotation.tailrec
 
-class MeasurersSpec extends FlatSpec with Matchers {
+class MeasuresSpec extends FlatSpec with Matchers {
 
     val exampleSourceFile = """/*
  * Sonar Scala Plugin
@@ -56,80 +50,80 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
 
   "A Comment lines counter" should "count line comments" in {
     val tokens = Scala.tokenize("// this is a test", "2.11.8")
-    val count = Measures.count_comment_lines(tokens)
+    val count = Measures.countCommentLines(tokens)
     assert(count == 1)
   }
 
   it should "count multiline comments" in {
     val tokens = Scala.tokenize("/* this\n *is\n *a\n *test*/", "2.11.8")
-    val count = Measures.count_comment_lines(tokens)
+    val count = Measures.countCommentLines(tokens)
     assert(count == 4)
   }
 
   it should "count trailing comments." in {
     val tokens = Scala.tokenize("case class Test() // this is a test", "2.11.8")
-    val count = Measures.count_comment_lines(tokens)
+    val count = Measures.countCommentLines(tokens)
     assert(count == 1)
   }
 
   it should "count the correct number of comments" in {
     val tokens = Scala.tokenize(exampleSourceFile, "2.11.8")
-    val count = Measures.count_comment_lines(tokens)
+    val count = Measures.countCommentLines(tokens)
     assert(count == 23)
   }
 
   "A Non-Comment lines counter" should "count non-comment lines of codes" in {
     val tokens = Scala.tokenize("package com.example", "2.11.8")
     println(tokens)
-    val count = Measures.count_ncloc(tokens)
+    val count = Measures.countNCLoC(tokens)
     assert(count == 1)
   }
 
   it should "count lines of code with a trailing comment" in {
     val tokens = Scala.tokenize("case class Test() /*\n * test\n */", "2.11.8")
-    val count = Measures.count_ncloc(tokens)
+    val count = Measures.countNCLoC(tokens)
     assert(count == 1)
   }
 
   it should "count trailing code." in {
     val tokens = Scala.tokenize("/* this is a test */ case class Test()", "2.11.8")
-    val count = Measures.count_ncloc(tokens)
+    val count = Measures.countNCLoC(tokens)
     assert(count == 1)
   }
 
   it should "count the correct number of lines" in {
     val tokens = Scala.tokenize(exampleSourceFile, "2.11.8")
-    val count = Measures.count_ncloc(tokens)
+    val count = Measures.countNCLoC(tokens)
     assert(count == 18)
   }
 
   it should "count the number of classes" in {
     val tokens = Scala.tokenize(exampleSourceFile, "2.11.8")
-    val count = Measures.count_classes(tokens)
+    val count = Measures.countClasses(tokens)
     assert(count == 1)
   }
 
   it should "count the number of functions" in {
     val tokens = Scala.tokenize("def foo(x: Int) = {}", "2.11.8")
-    val count = Measures.count_functions(tokens)
+    val count = Measures.countFunctions(tokens)
     assert(count == 1)
   }
 
   it should "count class, object, and trait constructors as functions" in {
     val tokens = Scala.tokenize("class Foo {} object Bar {} trait Baz {}", "2.11.8")
-    val count = Measures.count_functions(tokens)
+    val count = Measures.countFunctions(tokens)
     assert(count == 3)
   }
 
   it should "count complexity of a simple function" in {
     val tokens = Scala.tokenize("def foo = 1", "2.11.8")
-    val count = Measures.count_complexity(tokens)
+    val count = Measures.calculateComplexity(tokens)
     assert(count == 1)
   }
 
   it should "add to complexity in a function with IF-ELSE statement" in {
     val tokens = Scala.tokenize("def foo(s: Boolean) = if s then 1 else 0", "2.11.8")
-    val count = Measures.count_complexity(tokens)
+    val count = Measures.calculateComplexity(tokens)
     assert(count == 2)
   }
 
@@ -143,7 +137,7 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
         }
       }
 """, "2.11.8")
-    val count = Measures.count_complexity(tokens)
+    val count = Measures.calculateComplexity(tokens)
     assert(count == 3)
   }
 
@@ -157,7 +151,7 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
         }
       }
 """, "2.11.8")
-    val count = Measures.count_complexity(tokens)
+    val count = Measures.calculateComplexity(tokens)
     assert(count == 2)
   }
 
@@ -191,7 +185,7 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
         }
       }
 """, "2.11.8")
-    val count = Measures.count_complexity(tokens)
+    val count = Measures.calculateComplexity(tokens)
     assert(count == 9)
   }
 }
