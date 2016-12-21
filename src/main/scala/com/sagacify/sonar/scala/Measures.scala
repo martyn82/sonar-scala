@@ -7,7 +7,7 @@ import scalariform.lexer.Tokens.MULTILINE_COMMENT
 import scalariform.lexer.Tokens.XML_COMMENT
 import scalariform.lexer.Tokens.WS
 import scalariform.lexer.Tokens.EOF
-import scalariform.parser.AstNode
+import scalariform.parser.{AstNode, CompilationUnit, FunDefOrDcl}
 
 object Measures {
 
@@ -80,6 +80,30 @@ object Measures {
         } else {
           countNCLoC(tail, i)
         }
+    }
+  }
+
+  final def extractFunctions(ast: AstNode): List[AstNode] = {
+    def innerExtractFunctions(ast: AstNode, functions: List[AstNode]): List[AstNode] = {
+      ast.immediateChildren.foldLeft(functions) { (functions, node) =>
+        node match {
+          case n if n.isEmpty => functions
+          case n: FunDefOrDcl => innerExtractFunctions(n, n :: functions)
+          case n: CompilationUnit if n.firstToken.tokenType == Tokens.CLASS => innerExtractFunctions(n, n :: functions)
+          case n: CompilationUnit if n.firstToken.tokenType == Tokens.OBJECT => innerExtractFunctions(ast, n :: functions)
+          case n: CompilationUnit if n.firstToken.tokenType == Tokens.TRAIT => innerExtractFunctions(ast, n :: functions)
+          case n: CompilationUnit if n.firstToken.tokenType == Tokens.CASE => innerExtractFunctions(ast, n :: functions)
+          case n => innerExtractFunctions(n, functions)
+        }
+      }
+    }
+
+    ast match {
+      case n: CompilationUnit if n.firstToken.tokenType == Tokens.CLASS => innerExtractFunctions(ast, n :: List.empty[AstNode])
+      case n: CompilationUnit if n.firstToken.tokenType == Tokens.OBJECT => innerExtractFunctions(ast, n :: List.empty[AstNode])
+      case n: CompilationUnit if n.firstToken.tokenType == Tokens.TRAIT => innerExtractFunctions(ast, n :: List.empty[AstNode])
+      case n: CompilationUnit if n.firstToken.tokenType == Tokens.CASE => innerExtractFunctions(ast, n :: List.empty[AstNode])
+      case _ => innerExtractFunctions(ast, List.empty[AstNode])
     }
   }
 
