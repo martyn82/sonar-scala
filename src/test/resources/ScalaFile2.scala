@@ -10,4 +10,6 @@ class ScalaFile2 {
   class NestedClass {}
 }
 
-case class Foo(id: Int)
+object ScalaFile2 {
+  case class Foo(id: Int)
+}

@@ -58,9 +58,9 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
       verify(sensorContext, times(1))
           .saveMeasure(file, CM.CLASSES, 1)
       verify(sensorContext, times(1))
-          .saveMeasure(file, CM.FUNCTIONS, 2)
+        .saveMeasure(file, CM.FUNCTIONS, 2)
       verify(sensorContext, times(1))
-          .saveMeasure(file, CM.FUNCTION_COMPLEXITY, 1)
+        .saveMeasure(file, CM.FUNCTION_COMPLEXITY, 1)
     }
   }
 
@@ -80,11 +80,11 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
       verify(sensorContext, times(1))
           .saveMeasure(file, CM.COMMENT_LINES, 1)
       verify(sensorContext, times(1))
-          .saveMeasure(file, CM.CLASSES, 3)
+          .saveMeasure(file, CM.CLASSES, 4)
       verify(sensorContext, times(1))
-          .saveMeasure(file, CM.FUNCTIONS, 4)
+        .saveMeasure(file, CM.FUNCTIONS, 5)
       verify(sensorContext, times(1))
-          .saveMeasure(file, CM.FUNCTION_COMPLEXITY, 1)
+        .saveMeasure(file, CM.FUNCTION_COMPLEXITY, 1)
     }
   }
 
@@ -102,11 +102,13 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
       verify(sensorContext, times(1))
           .saveMeasure(file, CM.COMMENT_LINES, 1)
       verify(sensorContext, times(1))
-          .saveMeasure(file, CM.NCLOC, 21)
+          .saveMeasure(file, CM.NCLOC, 27)
       verify(sensorContext, times(1))
           .saveMeasure(file, CM.CLASSES, 1)
       verify(sensorContext, times(1))
           .saveMeasure(file, CM.FUNCTIONS, 2)
+      verify(sensorContext, times(1))
+        .saveMeasure(file, CM.COMPLEXITY, 7)
       verify(sensorContext, times(1))
           .saveMeasure(file, CM.FUNCTION_COMPLEXITY, 3)
     }

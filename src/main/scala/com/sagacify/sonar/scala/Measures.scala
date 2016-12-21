@@ -7,7 +7,7 @@ import scalariform.lexer.Tokens.MULTILINE_COMMENT
 import scalariform.lexer.Tokens.XML_COMMENT
 import scalariform.lexer.Tokens.WS
 import scalariform.lexer.Tokens.EOF
-import scalariform.parser.{AstNode, CompilationUnit, FunDefOrDcl}
+import scalariform.parser._
 
 object Measures {
 
@@ -40,19 +40,8 @@ object Measures {
     tokens match {
       case Nil => i
       case token :: tail if token.tokenType == Tokens.CLASS => countClasses(tail, i + 1)
+      case token :: tail if token.tokenType == Tokens.OBJECT => countClasses(tail, i + 1)
       case _ :: tail => countClasses(tail, i)
-    }
-  }
-
-  @tailrec
-  final def countFunctions(tokens: List[Token], i: Int = 0): Int = {
-    tokens match {
-      case Nil => i
-      case token :: tail if token.tokenType == Tokens.DEF => countFunctions(tail, i + 1)
-      case token :: tail if token.tokenType == Tokens.CLASS => countFunctions(tail, i + 1)
-      case token :: tail if token.tokenType == Tokens.OBJECT => countFunctions(tail, i + 1)
-      case token :: tail if token.tokenType == Tokens.TRAIT => countFunctions(tail, i + 1)
-      case _ :: tail => countFunctions(tail, i)
     }
   }
 
@@ -83,48 +72,50 @@ object Measures {
     }
   }
 
+  private def isFunctionNode(node: AstNode): Boolean = {
+    node match {
+      case n: FullDefOrDcl if n.firstToken.tokenType == Tokens.CLASS || n.firstToken.tokenType == Tokens.TRAIT
+        || n.firstToken.tokenType == Tokens.OBJECT || n.firstToken.tokenType == Tokens.CASE => true
+      case _: FunDefOrDcl => true
+      case _ => false
+    }
+  }
+
   final def extractFunctions(ast: AstNode): List[AstNode] = {
     def innerExtractFunctions(ast: AstNode, functions: List[AstNode]): List[AstNode] = {
       ast.immediateChildren.foldLeft(functions) { (functions, node) =>
         node match {
           case n if n.isEmpty => functions
-          case n: FunDefOrDcl => innerExtractFunctions(n, n :: functions)
-          case n: CompilationUnit if n.firstToken.tokenType == Tokens.CLASS => innerExtractFunctions(n, n :: functions)
-          case n: CompilationUnit if n.firstToken.tokenType == Tokens.OBJECT => innerExtractFunctions(ast, n :: functions)
-          case n: CompilationUnit if n.firstToken.tokenType == Tokens.TRAIT => innerExtractFunctions(ast, n :: functions)
-          case n: CompilationUnit if n.firstToken.tokenType == Tokens.CASE => innerExtractFunctions(ast, n :: functions)
+          case n if isFunctionNode(n) => innerExtractFunctions(n, n :: functions)
           case n => innerExtractFunctions(n, functions)
         }
       }
     }
 
     ast match {
-      case n: CompilationUnit if n.firstToken.tokenType == Tokens.CLASS => innerExtractFunctions(ast, n :: List.empty[AstNode])
-      case n: CompilationUnit if n.firstToken.tokenType == Tokens.OBJECT => innerExtractFunctions(ast, n :: List.empty[AstNode])
-      case n: CompilationUnit if n.firstToken.tokenType == Tokens.TRAIT => innerExtractFunctions(ast, n :: List.empty[AstNode])
-      case n: CompilationUnit if n.firstToken.tokenType == Tokens.CASE => innerExtractFunctions(ast, n :: List.empty[AstNode])
+      case n if isFunctionNode(n) => innerExtractFunctions(ast, n :: List.empty[AstNode])
       case _ => innerExtractFunctions(ast, List.empty[AstNode])
     }
   }
 
-  @tailrec
-  final def calculateComplexity(tokens: List[Token], i: Int = 0): Int = {
-    tokens match {
-      case Nil => i
+  final def calculateComplexity(ast: AstNode): Int = {
+    def innerCalculateComplexity(node: AstNode, i: Int = 0): Int = {
+      node match {
+        case IfExpr(_, _, _, body, None)              => innerCalculateComplexity(body, i + 1)
+        case IfExpr(_, _, _, body, Some(elseClause))  => innerCalculateComplexity(body, i + 1) + innerCalculateComplexity(elseClause.elseBody, i)
+        case CaseClause(_, stats)                     => innerCalculateComplexity(stats, i + 1)
+        case WhileExpr(_, _, _, body)                 => innerCalculateComplexity(body, i + 1)
+        case DoExpr(_, body, _, _, _)                 => innerCalculateComplexity(body, i + 1)
+        case ForExpr(_, _, _, _, _, _, body)          => innerCalculateComplexity(body, i + 1)
+        case _: FunDefOrDcl                           => i
+        case n => n.immediateChildren.map(n => innerCalculateComplexity(n)).sum + i
+      }
+    }
 
-      case token :: tail if token.tokenType == Tokens.CASE => calculateComplexity(tail, i + 1)
-      case token :: tail if token.tokenType == Tokens.DO => calculateComplexity(tail, i + 1)
-      case token :: tail if token.tokenType == Tokens.FOR => calculateComplexity(tail, i + 1)
-      case token :: tail if token.tokenType == Tokens.FORSOME => calculateComplexity(tail, i + 1)
-      case token :: tail if token.tokenType == Tokens.IF => calculateComplexity(tail, i + 1)
-      case token :: tail if token.tokenType == Tokens.WHILE => calculateComplexity(tail, i + 1)
-
-      case token :: tail if token.tokenType == Tokens.DEF => calculateComplexity(tail, i + 1)
-      case token :: tail if token.tokenType == Tokens.TRAIT => calculateComplexity(tail, i + 1)
-      case token :: tail if token.tokenType == Tokens.CLASS => calculateComplexity(tail, i + 1)
-      case token :: tail if token.tokenType == Tokens.OBJECT => calculateComplexity(tail, i + 1)
-
-      case _ :: tail => calculateComplexity(tail, i)
+    ast match {
+      case FunDefOrDcl(_, _, _, _, _, Some(body), _)  => innerCalculateComplexity(body, 1)
+      case FullDefOrDcl(_, _, defOrDcl)               => innerCalculateComplexity(defOrDcl, 1)
+      case _ => 0
     }
   }
 }

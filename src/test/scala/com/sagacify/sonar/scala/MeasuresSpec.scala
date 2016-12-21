@@ -74,7 +74,6 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
 
   "A Non-Comment lines counter" should "count non-comment lines of codes" in {
     val tokens = Scala.tokenize("package com.example", scalaVersion)
-    println(tokens)
     val count = Measures.countNCLoC(tokens)
     assert(count == 1)
   }
@@ -104,15 +103,24 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
   }
 
   it should "count the number of functions" in {
-    val tokens = Scala.tokenize("def foo(x: Int) = {}", scalaVersion)
-    val count = Measures.countFunctions(tokens)
-    assert(count == 1)
+    Scala.parse("def foo(x: Int) = {}", scalaVersion).map { ast =>
+      val count = Measures.extractFunctions(ast).length
+      assert(count == 1)
+      Nil
+    } getOrElse assert(false)
   }
 
   it should "count class, object, and trait constructors as functions" in {
-    val tokens = Scala.tokenize("class Foo {} object Bar {} trait Baz {}", scalaVersion)
-    val count = Measures.countFunctions(tokens)
-    assert(count == 3)
+    Scala.parse(
+"""
+   class Foo {}
+   object Bar {}
+   trait Baz {}
+""", scalaVersion).map { ast =>
+      val count = Measures.extractFunctions(ast).length
+      assert(count == 3)
+      Nil
+    } getOrElse assert(false)
   }
 
   it should "extract functions" in {
@@ -207,19 +215,32 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
   }
 
   it should "count complexity of a simple function" in {
-    val tokens = Scala.tokenize("def foo = 1", scalaVersion)
-    val count = Measures.calculateComplexity(tokens)
-    assert(count == 1)
+    Scala.parse("def foo = 1", scalaVersion).map { ast =>
+      val count = Measures.extractFunctions(ast).map(Measures.calculateComplexity).head
+      assert(count == 1)
+      Nil
+    } getOrElse assert(false)
   }
 
   it should "add to complexity in a function with IF-ELSE statement" in {
-    val tokens = Scala.tokenize("def foo(s: Boolean) = if s then 1 else 0", scalaVersion)
-    val count = Measures.calculateComplexity(tokens)
-    assert(count == 2)
+    Scala.parse(
+"""
+    def foo(s: Boolean): Int = {
+      if (s) {
+        1
+      } else {
+        0
+      }
+    }
+""", scalaVersion).map { ast =>
+      val count = Measures.extractFunctions(ast).map(f => Measures.calculateComplexity(f)).head
+      assert(count == 2)
+      Nil
+    } getOrElse assert(false)
   }
 
   it should "add to complexity in a function with MATCH-CASE statement" in {
-    val tokens = Scala.tokenize(
+    Scala.parse(
 """
       def foo(i: Int) = {
         i match {
@@ -227,13 +248,15 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
           case 1 => 10
         }
       }
-""", scalaVersion)
-    val count = Measures.calculateComplexity(tokens)
-    assert(count == 3)
+""", scalaVersion).map { ast =>
+      val count = Measures.extractFunctions(ast).map(Measures.calculateComplexity).head
+      assert(count == 3)
+      Nil
+    } getOrElse assert(false)
   }
 
   it should "add to complexity in a function with WHILE statement" in {
-    val tokens = Scala.tokenize(
+    Scala.parse(
 """
       def foo(i: Int) = {
         var a = 10
@@ -241,13 +264,15 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
           a = a - 1
         }
       }
-""", scalaVersion)
-    val count = Measures.calculateComplexity(tokens)
-    assert(count == 2)
+""", scalaVersion).map { ast =>
+      val count = Measures.extractFunctions(ast).map(Measures.calculateComplexity).head
+      assert(count == 2)
+      Nil
+    } getOrElse assert(false)
   }
 
   it should "count correct complexity" in {
-    val tokens = Scala.tokenize(
+    Scala.parse(
 """
       def foo(i: Int, b: Boolean) = {
         val bar = if (i > 10) {
@@ -275,8 +300,10 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
           case exception: Throwable => "error"
         }
       }
-""", scalaVersion)
-    val count = Measures.calculateComplexity(tokens)
-    assert(count == 9)
+""", scalaVersion).map { ast =>
+      val count = Measures.extractFunctions(ast).map(Measures.calculateComplexity).head
+      assert(count == 8)
+      Nil
+    } getOrElse assert(false)
   }
 }
