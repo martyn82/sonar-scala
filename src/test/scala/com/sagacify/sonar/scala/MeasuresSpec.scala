@@ -102,6 +102,12 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
     assert(count == 1)
   }
 
+  it should "count object and trait as classes" in {
+    val tokens = Scala.tokenize("class Foo {}; object Bar {}; trait Baz {}", scalaVersion)
+    val count = Measures.countClasses(tokens)
+    assert(count == 3)
+  }
+
   it should "count the number of functions" in {
     Scala.parse("def foo(x: Int) = {}", scalaVersion).map { ast =>
       val count = Measures.extractFunctions(ast).length

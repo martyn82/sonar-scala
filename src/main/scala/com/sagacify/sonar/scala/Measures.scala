@@ -41,6 +41,7 @@ object Measures {
       case Nil => i
       case token :: tail if token.tokenType == Tokens.CLASS => countClasses(tail, i + 1)
       case token :: tail if token.tokenType == Tokens.OBJECT => countClasses(tail, i + 1)
+      case token :: tail if token.tokenType == Tokens.TRAIT => countClasses(tail, i + 1)
       case _ :: tail => countClasses(tail, i)
     }
   }
