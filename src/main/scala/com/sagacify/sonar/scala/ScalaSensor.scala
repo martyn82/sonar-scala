@@ -32,14 +32,14 @@ class ScalaSensor(scala: Scala, fs: FileSystem) extends Sensor {
 
       Scala.parse(sourceCode, version).map { ast =>
         val functions = Measures.extractFunctions(ast)
-        context.saveMeasure(inputFile, CM.FUNCTIONS, functions.length)
-        context.saveMeasure(inputFile, CM.COMPLEXITY, functions.map(Measures.calculateComplexity).sum)
+        val complexities = functions.map(Measures.calculateComplexity).filter(_ > 0)
+
+        context.saveMeasure(inputFile, CM.FUNCTIONS, complexities.length)
+        context.saveMeasure(inputFile, CM.COMPLEXITY, complexities.sum)
+        context.saveMeasure(inputFile, CM.COMPLEXITY_IN_FUNCTIONS, complexities.sum)
       } getOrElse {
         throw new RuntimeException("Source code does not contain AST")
       }
-
-      // Unsupported
-      // CM.FUNCTION_COMPLEXITY
 
       // context.saveMeasure(input, CM.ACCESSORS, accessors)
       // context.saveMeasure(input, CM.COMPLEXITY_IN_FUNCTIONS, complexityInMethods)
