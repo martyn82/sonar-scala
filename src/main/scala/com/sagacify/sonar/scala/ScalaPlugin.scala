@@ -48,7 +48,8 @@ class ScalaPlugin extends SonarPlugin {
       classOf[ScalastyleSensor],
       classOf[ScalaMetrics],
       classOf[ScoverageSensor],
-      classOf[ScoverageWidget]
+      classOf[ScoverageWidget],
+      classOf[ScalaCpdMapping]
     )
 
   override val toString = getClass.getSimpleName

@@ -104,6 +104,18 @@
       <version>2.5</version>
     </dependency>
 
+    <dependency>
+      <groupId>pmd</groupId>
+      <artifactId>pmd</artifactId>
+      <version>4.3</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.ibm.icu</groupId>
+          <artifactId>icu4j</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
     <!-- unit tests -->
     <dependency>
       <groupId>org.scalatest</groupId>
