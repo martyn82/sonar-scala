@@ -48,13 +48,11 @@ object Measures {
 
   @tailrec
   final def countNCLoC(tokens: List[Token], i: Int = 0): Int = {
-
     @tailrec
     def getNextLine(tokens: List[Token]): List[Token] = {
       tokens match {
         case Nil => Nil
-        case token :: tail if token.tokenType == WS &&
-                              token.text.contains('\n') => tail
+        case token :: tail if token.tokenType == WS && token.text.contains('\n') => tail
         case token :: tail if token.tokenType == LINE_COMMENT => tail
         case token :: tail => getNextLine(tail)
       }
@@ -65,7 +63,7 @@ object Measures {
       case token :: tail if token.tokenType == WS => countNCLoC(tail, i)
       case token :: tail if token.tokenType == EOF => i
       case token :: tail =>
-        if( !token.tokenType.isNewline & !token.tokenType.isComment) {
+        if (!token.tokenType.isNewline & !token.tokenType.isComment) {
           countNCLoC(getNextLine(tail), i + 1)
         } else {
           countNCLoC(tail, i)
@@ -75,10 +73,33 @@ object Measures {
 
   private def isFunctionNode(node: AstNode): Boolean = {
     node match {
-      case n: FullDefOrDcl if n.firstToken.tokenType == Tokens.CLASS || n.firstToken.tokenType == Tokens.TRAIT
-        || n.firstToken.tokenType == Tokens.OBJECT || n.firstToken.tokenType == Tokens.CASE => true
       case _: FunDefOrDcl => true
       case _ => false
+    }
+  }
+
+  private def isClassNode(node: AstNode): Boolean = {
+    node match {
+      case n: FullDefOrDcl if n.firstToken.tokenType == Tokens.CLASS || n.firstToken.tokenType == Tokens.TRAIT
+        || n.firstToken.tokenType == Tokens.OBJECT || n.firstToken.tokenType == Tokens.CASE => true
+      case _ => false
+    }
+  }
+
+  final def extractClasses(ast: AstNode): List[AstNode] = {
+    def innerExtractClasses(ast: AstNode, classes: List[AstNode]): List[AstNode] = {
+      ast.immediateChildren.foldLeft(classes) { (classes, node) =>
+        node match {
+          case n if n.isEmpty => classes
+          case n if isClassNode(n) => innerExtractClasses(n, n :: classes)
+          case n => innerExtractClasses(n, classes)
+        }
+      }
+    }
+
+    ast match {
+      case n if isClassNode(n) => innerExtractClasses(ast, n :: List.empty[AstNode])
+      case _ => innerExtractClasses(ast, List.empty[AstNode])
     }
   }
 

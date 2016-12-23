@@ -116,14 +116,14 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
     } getOrElse assert(false)
   }
 
-  it should "count class, object, and trait constructors as functions" in {
+  it should "count class, object, and trait constructors as classes" in {
     Scala.parse(
 """
    class Foo {}
    object Bar {}
    trait Baz {}
 """, scalaVersion).map { ast =>
-      val count = Measures.extractFunctions(ast).length
+      val count = Measures.extractClasses(ast).length
       assert(count == 3)
       Nil
     } getOrElse assert(false)
@@ -149,52 +149,52 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
     } getOrElse assert(false)
   }
 
-  it should "extract class declaration as function" in {
+  it should "extract class declaration as class" in {
     val source =
       """
          class Foo {
          }
       """
     Scala.parse(source, scalaVersion).map { ast =>
-      val functions = Measures.extractFunctions(ast)
+      val functions = Measures.extractClasses(ast)
       assert(functions.length == 1)
       Nil
     } getOrElse assert(false)
   }
 
-  it should "extract case class declaration as function" in {
+  it should "extract case class declaration as class" in {
     val source =
       """
         case class Foo(b: Boolean, i: Int)
       """
     Scala.parse(source, scalaVersion).map { ast =>
-      val functions = Measures.extractFunctions(ast)
+      val functions = Measures.extractClasses(ast)
       assert(functions.length == 1)
       Nil
     } getOrElse assert(false)
   }
 
-  it should "extract trait declaration as function" in {
+  it should "extract trait declaration as class" in {
     val source =
       """
         trait Foo {
         }
       """
     Scala.parse(source, scalaVersion).map { ast =>
-      val functions = Measures.extractFunctions(ast)
+      val functions = Measures.extractClasses(ast)
       assert(functions.length == 1)
       Nil
     } getOrElse assert(false)
   }
 
-  it should "extract object declaration as function" in {
+  it should "extract object declaration as class" in {
     val source =
       """
         object Foo {
         }
       """
     Scala.parse(source, scalaVersion).map { ast =>
-      val functions = Measures.extractFunctions(ast)
+      val functions = Measures.extractClasses(ast)
       assert(functions.length == 1)
       Nil
     } getOrElse assert(false)
@@ -214,8 +214,11 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
         }
       """
     Scala.parse(source, scalaVersion).map { ast =>
+      val classes = Measures.extractClasses(ast)
+      assert(classes.length == 1)
+
       val functions = Measures.extractFunctions(ast)
-      assert(functions.length == 3)
+      assert(functions.length == 2)
       Nil
     } getOrElse assert(false)
   }
@@ -365,9 +368,11 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
    val fileExtension = "scala"
  }
 """, scalaVersion).map { ast =>
+      val classes = Measures.extractClasses(ast)
+      assert(classes.length == 2)
       val functions = Measures.extractFunctions(ast)
-      assert(functions.length == 2)
-      val count = functions.map(Measures.calculateComplexity).sum
+      assert(functions.isEmpty)
+      val count = functions.map(Measures.calculateComplexity).sum + classes.map(Measures.calculateComplexity).sum
       assert(count == 2)
       Nil
     } getOrElse assert(false)

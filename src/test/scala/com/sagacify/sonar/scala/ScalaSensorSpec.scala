@@ -61,6 +61,8 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
         .saveMeasure(file, CM.FUNCTIONS, 2)
       verify(sensorContext, times(1))
         .saveMeasure(file, CM.COMPLEXITY_IN_FUNCTIONS, 2)
+      verify(sensorContext, times(1))
+        .saveMeasure(file, CM.COMPLEXITY_IN_CLASSES, 1)
     }
   }
 
@@ -85,6 +87,8 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
         .saveMeasure(file, CM.FUNCTIONS, 5)
       verify(sensorContext, times(1))
         .saveMeasure(file, CM.COMPLEXITY_IN_FUNCTIONS, 5)
+      verify(sensorContext, times(1))
+        .saveMeasure(file, CM.COMPLEXITY_IN_CLASSES, 4)
     }
   }
 
@@ -111,6 +115,8 @@ class ScalaSensorSpec extends FlatSpec with Matchers {
         .saveMeasure(file, CM.COMPLEXITY, 7)
       verify(sensorContext, times(1))
         .saveMeasure(file, CM.COMPLEXITY_IN_FUNCTIONS, 7)
+      verify(sensorContext, times(1))
+        .saveMeasure(file, CM.COMPLEXITY_IN_CLASSES, 2)
     }
   }
 }
