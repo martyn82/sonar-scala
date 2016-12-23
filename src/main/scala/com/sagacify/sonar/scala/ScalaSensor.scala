@@ -2,7 +2,7 @@ package com.sagacify.sonar.scala
 
 import scala.io.Source
 import scala.collection.JavaConversions._
-import org.sonar.api.batch.fs.{FileSystem, InputFile}
+import org.sonar.api.batch.fs.FileSystem
 import org.sonar.api.batch.Sensor
 import org.sonar.api.batch.SensorContext
 import org.sonar.api.measures.{CoreMetrics => CM}
