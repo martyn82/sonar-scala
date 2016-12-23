@@ -19,11 +19,8 @@ class ScalaSensor(scala: Scala, fs: FileSystem) extends Sensor {
     val version = "2.11.8"
 
     val inputFiles = fs.inputFiles(fs.predicates().hasLanguage(scala.getKey))
-    val blocksPerFile = collection.mutable.Map.empty[String, List[(List[String], Int)]]
-    val files = collection.mutable.Map.empty[String, InputFile]
 
     inputFiles.foreach { inputFile =>
-      files.put(inputFile.absolutePath(), inputFile)
       context.saveMeasure(inputFile, CM.FILES, 1.0)
 
       val sourceCode = Source.fromFile(inputFile.file, charset).mkString
