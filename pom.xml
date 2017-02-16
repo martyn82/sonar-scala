@@ -40,14 +40,14 @@
   </developers>
 
   <scm>
-    <connection>scm:git:git@github.com:sagacify/sonar-scala.git</connection>
-    <developerConnection>scm:git:git@github.com:sagacify/sonar-scala.git</developerConnection>
-    <url>https://github.com/sagacify/sonar-scala</url>
+    <connection>scm:git:git@github.com:martyn82/sonar-scala.git</connection>
+    <developerConnection>scm:git:git@github.com:martyn82/sonar-scala.git</developerConnection>
+    <url>https://github.com/martyn82/sonar-scala</url>
     <tag>HEAD</tag>
   </scm>
 
   <issueManagement>
-    <url>https://github.com/sagacify/sonar-scala/issues</url>
+    <url>https://github.com/martyn82/sonar-scala/issues</url>
   </issueManagement>
 
   <properties>
