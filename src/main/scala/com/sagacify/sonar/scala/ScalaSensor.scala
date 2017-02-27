@@ -21,6 +21,7 @@ class ScalaSensor(scala: Scala, fs: FileSystem) extends Sensor {
     val inputFiles = fs.inputFiles(fs.predicates().hasLanguage(scala.getKey))
 
     inputFiles.foreach { inputFile =>
+      println("Handling file " + inputFile.absolutePath())
       context.saveMeasure(inputFile, CM.FILES, 1.0)
 
       val sourceCode = Source.fromFile(inputFile.file, charset).mkString

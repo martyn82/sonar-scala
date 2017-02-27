@@ -121,18 +121,25 @@ object Measures {
   }
 
   final def calculateComplexity(ast: AstNode): Int = {
+    @tailrec
     def innerCalculateComplexity(node: AstNode, i: Int = 0): Int = {
       node match {
         case IfExpr(_, _, _, body, None)              => innerCalculateComplexity(body, i + 1)
-        case IfExpr(_, _, _, body, Some(elseClause))  => innerCalculateComplexity(body, i + 1) + innerCalculateComplexity(elseClause.elseBody, i)
+        case IfExpr(_, _, _, body, Some(elseClause))  => calculateBranches(body, elseClause.elseBody, i)
         case CaseClause(_, stats)                     => innerCalculateComplexity(stats, i + 1)
         case WhileExpr(_, _, _, body)                 => innerCalculateComplexity(body, i + 1)
         case DoExpr(_, body, _, _, _)                 => innerCalculateComplexity(body, i + 1)
         case ForExpr(_, _, _, _, _, _, body)          => innerCalculateComplexity(body, i + 1)
         case _: FunDefOrDcl                           => i
-        case n => n.immediateChildren.map(n => innerCalculateComplexity(n)).sum + i
+        case n                                        => calculateChildren(n, i)
       }
     }
+
+    def calculateBranches(branchA: AstNode, branchB: AstNode, i: Int): Int =
+      innerCalculateComplexity(branchA, i + 1) + innerCalculateComplexity(branchB, i)
+
+    def calculateChildren(n: AstNode, i: Int): Int =
+      n.immediateChildren.map(n => innerCalculateComplexity(n)).sum + i
 
     ast match {
       case FunDefOrDcl(_, _, _, _, _, Some(body), _)  => innerCalculateComplexity(body, 1)
